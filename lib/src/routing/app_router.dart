@@ -1,12 +1,12 @@
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-
+import 'package:prime_app/src/features/splash/presentation/splash_screen.dart';
 import 'package:prime_app/src/features/auth/presentation/login_screen.dart';
 import 'package:prime_app/src/features/buyer/home/presentation/buyer_home_screen.dart';
 import 'package:prime_app/src/features/buyer/home/presentation/scaffold_with_nav_bar.dart';
 import 'package:prime_app/src/features/buyer/products/presentation/product_listing_screen.dart';
+import 'package:prime_app/src/features/buyer/products/presentation/category_listing_screen.dart';
 import 'package:prime_app/src/features/buyer/products/presentation/product_details_screen.dart';
 import 'package:prime_app/src/features/buyer/cart/presentation/cart_screen.dart';
 import 'package:prime_app/src/features/buyer/checkout/presentation/checkout_screen.dart';
@@ -15,25 +15,38 @@ import 'package:prime_app/src/features/admin/dashboard/presentation/admin_dashbo
 import 'package:prime_app/src/features/chat/presentation/chat_list_screen.dart';
 import 'package:prime_app/src/features/chat/presentation/chat_room_screen.dart';
 import 'package:prime_app/src/routing/not_found_screen.dart';
-
-// Note: In a real app we would use code generation for the router provider
-// but for this UI focused phase we will define it directly.
+import 'package:prime_app/src/features/shared/presentation/notifications_screen.dart';
+import 'package:prime_app/src/features/shared/presentation/profile_screen.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: '/login',
+    initialLocation: '/',
     debugLogDiagnostics: true,
     errorBuilder: (context, state) => const NotFoundScreen(),
     routes: [
       GoRoute(
+        path: '/',
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
       ),
-      
+
       // Admin Routes
       GoRoute(
         path: '/admin/dashboard',
         builder: (context, state) => const AdminDashboardScreen(),
+      ),
+
+      // Shared Routes
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const ProfileScreen(),
       ),
 
       // Seller Routes
@@ -41,7 +54,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/seller/dashboard',
         builder: (context, state) => const SellerDashboardScreen(),
       ),
-      
+
       // Buyer shell with bottom nav
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -57,17 +70,24 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          
-          // Branch 1: Catalog
+
+          // Branch 1: Categories
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/buyer/catalog',
-                builder: (context, state) => const ProductListingScreen(),
+                path: '/buyer/categories',
+                builder: (context, state) =>
+                    const CategoryListingScreen(),
                 routes: [
                   GoRoute(
+                    path: 'products',
+                    builder: (context, state) =>
+                        const ProductListingScreen(),
+                  ),
+                  GoRoute(
                     path: 'details',
-                    builder: (context, state) => const ProductDetailsScreen(),
+                    builder: (context, state) =>
+                        const ProductDetailsScreen(),
                   ),
                 ],
               ),
@@ -83,27 +103,28 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 routes: [
                   GoRoute(
                     path: 'checkout',
-                    parentNavigatorKey: null, // Open full screen (outside shell) if preferred, or inside
-                    builder: (context, state) => const CheckoutScreen(),
+                    builder: (context, state) =>
+                        const CheckoutScreen(),
                   ),
                 ],
               ),
             ],
           ),
 
-          // Branch 3: Chats (Shared feature used as "Profile/Support" tab for now)
+          // Branch 3: Chats
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: '/buyer/chats',
-                builder: (context, state) => const ChatListScreen(),
+                builder: (context, state) =>
+                    const ChatListScreen(),
                 routes: [
-                   GoRoute(
+                  GoRoute(
                     path: 'room',
-                    parentNavigatorKey: null, // Hide bottom nav for chat room
-                    builder: (context, state) => const ChatRoomScreen(),
+                    builder: (context, state) =>
+                        const ChatRoomScreen(),
                   ),
-                ]
+                ],
               ),
             ],
           ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../../core/constants/app_colors.dart';
+import 'package:prime_app/src/core/constants/app_colors.dart';
+import 'package:prime_app/src/features/seller/dashboard/presentation/seller_dashboard_screen.dart';
 
 class BuyerHomeScreen extends StatelessWidget {
   const BuyerHomeScreen({super.key});
@@ -10,6 +11,7 @@ class BuyerHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+        drawer: const _PrimeDrawer(),
       body: CustomScrollView(
         slivers: [
           // 1. App Bar with Search & Location
@@ -50,7 +52,6 @@ class BuyerHomeScreen extends StatelessWidget {
 // -----------------------------------------------------------------------------
 // Sub-Widgets (Internal for now, can be extracted later)
 // -----------------------------------------------------------------------------
-
 class _BuyerAppBar extends StatelessWidget {
   const _BuyerAppBar();
 
@@ -61,6 +62,17 @@ class _BuyerAppBar extends StatelessWidget {
       floating: true,
       backgroundColor: AppColors.primaryDark,
       expandedHeight: 140,
+
+      // ✅ MENU ICON ADDED
+      leading: Builder(
+        builder: (context) => IconButton(
+          icon: const Icon(Icons.menu, color: Colors.white),
+          onPressed: () {
+            Scaffold.of(context).openDrawer();
+          },
+        ),
+      ),
+
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: const BoxDecoration(
@@ -68,15 +80,20 @@ class _BuyerAppBar extends StatelessWidget {
           ),
           child: Stack(
             children: [
-              // Subtle pattern or gradient overlay could go here
               Positioned(
-                 right: -50, top: -50,
-                 child: Icon(Icons.shield_outlined, size: 200, color: Colors.white.withOpacity(0.05)),
+                right: -50,
+                top: -50,
+                child: Icon(
+                  Icons.shield_outlined,
+                  size: 200,
+                  color: Colors.white.withOpacity(0.05),
+                ),
               ),
             ],
           ),
         ),
       ),
+
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: Container(
@@ -127,6 +144,7 @@ class _BuyerAppBar extends StatelessWidget {
           ),
         ),
       ),
+
       title: Row(
         children: [
           const Icon(Icons.location_on, size: 16, color: AppColors.accent),
@@ -142,6 +160,7 @@ class _BuyerAppBar extends StatelessWidget {
           const Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.white70),
         ],
       ),
+
       actions: [
         IconButton(
           icon: const Icon(Icons.notifications_outlined, color: Colors.white),
@@ -479,4 +498,111 @@ class _ProductCard extends StatelessWidget {
       ),
     );
   }
+}
+// -----------------------------------------------------------------------------
+// INDIA-MART STYLE DRAWER (MENU ONLY)
+// -----------------------------------------------------------------------------
+class _PrimeDrawer extends StatelessWidget {
+  const _PrimeDrawer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              gradient: AppColors.primaryGradient,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                CircleAvatar(radius: 28, child: Icon(Icons.person)),
+                SizedBox(height: 12),
+                Text(
+                  "Hi Abi",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                Text(
+                  "+91 7639918567",
+                  style: TextStyle(color: Colors.white70),
+                ),
+              ],
+            ),
+          ),
+
+          _drawerTile(context, Icons.home, "Home"),
+          _drawerTile(context, Icons.category, "View All Categories"),
+          _drawerTile(context, Icons.post_add, "Post Your Requirement"),
+          _drawerTile(context, Icons.message, "Messages"),
+          _drawerTile(context, Icons.shopping_bag, "My Orders"),
+
+          _drawerTile(context, Icons.favorite_border, "Your Favorites"),
+          _drawerTile(context, Icons.local_shipping, "Ship with Prime"),
+          _drawerTile(context, Icons.verified, "Verified Exporters"),
+
+          const Divider(),
+
+          // 🔥 SWITCH TO SELLER (IndiaMART style)
+         _drawerTile(
+  context,
+  Icons.switch_account,
+  "Switch to Seller",
+  highlight: true,
+  onTap: () {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const SellerDashboardScreen(),
+      ),
+    );
+  },
+),
+
+          const Divider(),
+
+          _drawerTile(context, Icons.feedback, "Feedback"),
+          _drawerTile(context, Icons.help_outline, "Help & Support"),
+          _drawerTile(context, Icons.settings, "Settings"),
+        ],
+      ),
+    );
+  }
+
+  // ✅ UPDATED drawerTile (supports custom onTap)
+ Widget _drawerTile(
+  BuildContext context,
+  IconData icon,
+  String title, {
+  VoidCallback? onTap,
+  bool highlight = false,
+}) {
+  return Container(
+    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+      color: highlight ? AppColors.accent : Colors.transparent,
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: ListTile(
+      leading: Icon(
+        icon,
+        color: highlight ? Colors.white : null,
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: highlight ? Colors.white : null,
+          fontWeight: highlight ? FontWeight.w600 : FontWeight.normal,
+        ),
+      ),
+      onTap: onTap ??
+          () {
+            Navigator.pop(context);
+          },
+    ),
+  );
+}
+
 }

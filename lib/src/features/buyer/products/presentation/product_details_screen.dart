@@ -1,10 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 import 'package:prime_app/src/core/constants/app_colors.dart';
+import 'package:prime_app/src/core/data/dummy_data.dart';
 
-
-class ProductDetailsScreen extends StatelessWidget {
+class ProductDetailsScreen extends StatefulWidget {
   const ProductDetailsScreen({super.key});
+
+  @override
+  State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
+}
+
+class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  late Map<String, dynamic> product;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final state = GoRouterState.of(context);
+    if (state.extra != null && state.extra is Map<String, dynamic>) {
+       product = state.extra as Map<String, dynamic>;
+    } else {
+       // Fallback for direct testing
+       product = DummyDataService.products[0];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,19 +38,19 @@ class ProductDetailsScreen extends StatelessWidget {
                   const _ProductAppBar(),
                   SliverList(
                     delegate: SliverChildListDelegate([
-                      const _ImageGallery(),
-                      const _ProductHeader(),
+                      _ImageGallery(image: product['image']), // In real app, could be list of images
+                      _ProductHeader(product: product),
                       const Divider(thickness: 8, color: AppColors.divider),
                       const _ProductSpecs(),
                       const Divider(thickness: 8, color: AppColors.divider),
-                      const _SellerInfoCard(),
+                      _SellerInfoCard(sellerId: product['sellerId']),
                       const SizedBox(height: 32),
                     ]),
                   ),
                 ],
               ),
             ),
-            const _BottomActionBar(),
+            _BottomActionBar(product: product),
           ],
         ),
       ),
@@ -47,37 +67,62 @@ class _ProductAppBar extends StatelessWidget {
       elevation: 0,
       leading: Container(
         margin: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(blurRadius: 5, color: Colors.black12)]),
+        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(blurRadius: 5, color: Colors.black12)]),
         child: const BackButton(color: Colors.black),
       ),
       actions: [
          Container(
           margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(blurRadius: 5, color: Colors.black12)]),
+          decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(blurRadius: 5, color: Colors.black12)]),
           child: IconButton(icon:  Icon(Icons.share_outlined, color: Colors.black), onPressed: () {}),
         ),
          Container(
           margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
-          decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(blurRadius: 5, color: Colors.black12)]),
-          child: IconButton(icon: Icon(Icons.favorite_border, color: Colors.black), onPressed: () {}),
+          decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(blurRadius: 5, color: Colors.black12)]),
+          child: IconButton(icon:  Icon(Icons.favorite_border, color: Colors.black), onPressed: () {}),
         ),
       ],
     );
   }
-}
-
+}// Only updating parts that can overflow, rest remains same
 class _ImageGallery extends StatelessWidget {
-  const _ImageGallery();
+  final String? image;
+  const _ImageGallery({this.image});
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final galleryHeight = screenWidth * 0.8; // responsive height
+
     return SizedBox(
-      height: 300,
+      height: galleryHeight,
       child: PageView.builder(
         itemCount: 3,
         itemBuilder: (context, index) {
           return Container(
             color: const Color(0xFFF8FAFC),
-            child: Icon(Icons.traffic, size: 100, color: Colors.grey[300]),
+            child: Stack(
+              children: [
+                Center(
+                  child: Icon(Icons.image, size: 100, color: Colors.grey[300]),
+                ),
+                Positioned(
+                  bottom: 16,
+                  right: 16,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      "${index + 1}/3",
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ),
+                )
+              ],
+            ),
           );
         },
       ),
@@ -86,28 +131,43 @@ class _ImageGallery extends StatelessWidget {
 }
 
 class _ProductHeader extends StatelessWidget {
-  const _ProductHeader();
+  final Map<String, dynamic> product;
+  const _ProductHeader({required this.product});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min, // prevents column from taking extra height
         children: [
-          Text(
-            "Heavy Duty Traffic Cone - 750mm (Red)",
-            style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold),
+          Flexible(
+            child: Text(
+              product['name'] ?? "Product Name",
+              style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           const SizedBox(height: 8),
           Row(
             children: [
-              Text("₹ 350", style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary)),
+              Text(
+                "₹ ${product['price']}",
+                style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary),
+              ),
               const SizedBox(width: 8),
               Text("/ Piece", style: GoogleFonts.inter(fontSize: 14, color: AppColors.textSecondary)),
             ],
           ),
           const SizedBox(height: 8),
-          Text("Min. Order Quantity: 50 Pieces", style: GoogleFonts.inter(color: AppColors.accent, fontWeight: FontWeight.w500)),
+          Flexible(
+            child: Text(
+              "Min. Order Quantity: ${product['moq']} Pieces",
+              style: GoogleFonts.inter(color: AppColors.accent, fontWeight: FontWeight.w500),
+            ),
+          ),
         ],
       ),
     );
@@ -122,14 +182,14 @@ class _ProductSpecs extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min, // prevents extra height
         children: [
           Text("Product Specifications", style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          _SpecRow(label: "Material", value: "PVC (Polyvinyl Chloride)"),
-          _SpecRow(label: "Height", value: "750 mm"),
-          _SpecRow(label: "Weight", value: "3.2 Kg"),
-          _SpecRow(label: "Color", value: "Red & White (Reflective)"),
-          _SpecRow(label: "Base Type", value: "Square Black Rubber"),
+          const _SpecRow(label: "Material", value: "Premium Standard"),
+          const _SpecRow(label: "Certification", value: "ISO 9001:2015"),
+          const _SpecRow(label: "Application", value: "Road Safety / Construction"),
+          const _SpecRow(label: "Warranty", value: "1 Year Manufacturer"),
         ],
       ),
     );
@@ -147,7 +207,7 @@ class _SpecRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 100, child: Text(label, style: GoogleFonts.inter(color: AppColors.textSecondary))),
+          SizedBox(width: 120, child: Text(label, style: GoogleFonts.inter(color: AppColors.textSecondary))),
           Expanded(child: Text(value, style: GoogleFonts.inter(fontWeight: FontWeight.w500))),
         ],
       ),
@@ -156,9 +216,12 @@ class _SpecRow extends StatelessWidget {
 }
 
 class _SellerInfoCard extends StatelessWidget {
-  const _SellerInfoCard();
+  final String? sellerId;
+  const _SellerInfoCard({this.sellerId});
+
   @override
   Widget build(BuildContext context) {
+    final seller = DummyDataService.getSeller(sellerId ?? 's1');
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -183,12 +246,13 @@ class _SellerInfoCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Text("Safety First Corp", style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                          Text(seller?['name'] ?? "Seller Name", style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
                           const SizedBox(width: 4),
-                           Icon(Icons.verified, size: 16, color: Colors.blue),
+                          if (seller?['verified'] == true)
+                             const Icon(Icons.verified, size: 16, color: Colors.blue),
                         ],
                       ),
-                      Text("Mumbai, Maharashtra", style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary)),
+                      Text(seller?['location'] ?? "Location", style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary)),
                     ],
                   ),
                 ),
@@ -206,7 +270,9 @@ class _SellerInfoCard extends StatelessWidget {
 }
 
 class _BottomActionBar extends StatelessWidget {
-  const _BottomActionBar();
+  final Map<String, dynamic> product;
+  const _BottomActionBar({required this.product});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -219,15 +285,30 @@ class _BottomActionBar extends StatelessWidget {
         children: [
           Expanded(
             child: OutlinedButton(
-              onPressed: () {},
-              child: const Text("Get Quote"),
+              onPressed: () {
+                // Navigate to Chat Room
+                context.push('/buyer/chats/room', extra: product);
+              },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primary,
+                side: const BorderSide(color: AppColors.primary),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: const Text("Message Seller"),
             ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: ElevatedButton(
-              onPressed: () {},
-              child: const Text("Contact Seller"),
+              onPressed: () {
+                 ScaffoldMessenger.of(context).showSnackBar(
+                   const SnackBar(content: Text("Added to Request Queue")),
+                 );
+              },
+              style: ElevatedButton.styleFrom(
+                 padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: const Text("Get Best Quote"),
             ),
           ),
         ],

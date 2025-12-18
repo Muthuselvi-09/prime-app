@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prime_app/src/core/constants/app_colors.dart';
 
-
 class ScaffoldWithNavBar extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
@@ -28,7 +27,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
         indicatorColor: AppColors.primary.withOpacity(0.1),
         backgroundColor: Colors.white,
         elevation: 2,
-        destinations:  [
+        destinations: [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home, color: AppColors.primary),
@@ -37,7 +36,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
           NavigationDestination(
             icon: Icon(Icons.category_outlined),
             selectedIcon: Icon(Icons.category, color: AppColors.primary),
-            label: 'Catalog',
+            label: 'Categories',
           ),
           NavigationDestination(
             icon: Icon(Icons.shopping_cart_outlined),
@@ -47,7 +46,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
           NavigationDestination(
             icon: Icon(Icons.message_outlined),
             selectedIcon: Icon(Icons.message, color: AppColors.primary),
-            label: 'Chats', // Added for easy access
+            label: 'Chats',
           ),
         ],
       ),

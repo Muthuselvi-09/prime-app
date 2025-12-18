@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:prime_app/src/core/constants/app_colors.dart';
 
 
+import 'package:go_router/go_router.dart';
+
 class SellerDashboardScreen extends StatelessWidget {
   const SellerDashboardScreen({super.key});
 
@@ -17,20 +19,34 @@ class SellerDashboardScreen extends StatelessWidget {
         foregroundColor: AppColors.primary,
         elevation: 0,
         actions: [
-          IconButton(icon: const Icon(Icons.notifications_outlined), onPressed: () {}),
-          const Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-               radius: 16,
-               backgroundColor: AppColors.primary,
-               child: Text("S", style: TextStyle(color: Colors.white)),
+          IconButton(
+             icon: const Icon(Icons.notifications_outlined), 
+             onPressed: () => context.push('/notifications')
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: InkWell(
+              onTap: () => context.push('/profile'),
+              child: const CircleAvatar(
+                 radius: 16,
+                 backgroundColor: AppColors.primary,
+                 child: Text("S", style: TextStyle(color: Colors.white)),
+              ),
             ),
           )
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // Navigate to Add Product
+          // Show Add Product Mock
+           showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text("Add New Product"),
+              content: const Text("This feature allows sellers to list new products. (Simulated)"),
+              actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("Close"))],
+            ),
+          );
         },
         backgroundColor: AppColors.accent,
         icon: const Icon(Icons.add),

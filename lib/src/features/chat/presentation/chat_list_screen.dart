@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:go_router/go_router.dart';
 import 'package:prime_app/src/core/constants/app_colors.dart';
-
-import 'package:prime_app/src/features/chat/presentation/chat_room_screen.dart';
+import 'package:prime_app/src/core/data/dummy_data.dart';
 
 class ChatListScreen extends StatelessWidget {
   const ChatListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final sellers = DummyDataService.sellers;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -24,15 +25,15 @@ class ChatListScreen extends StatelessWidget {
       ),
       body: ListView.separated(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        itemCount: 8,
+        itemCount: sellers.length,
         separatorBuilder: (context, index) => const Divider(height: 1, indent: 80),
         itemBuilder: (context, index) {
+          final seller = sellers[index];
           return _ChatListItem(
+            seller: seller,
             index: index,
             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ChatRoomScreen()),
-              );
+              context.push('/buyer/chats/room', extra: seller);
             },
           );
         },
@@ -42,17 +43,19 @@ class ChatListScreen extends StatelessWidget {
 }
 
 class _ChatListItem extends StatelessWidget {
+  final Map<String, dynamic> seller;
   final int index;
   final VoidCallback onTap;
   
-  const _ChatListItem({required this.index, required this.onTap});
+  const _ChatListItem({required this.seller, required this.index, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    // Dummy Data Logic
+    // Dummy Data Logic for messages
     final isUnread = index < 2;
-    final name = index == 0 ? "Safety First Corp" : index == 1 ? "RoadWorks India" : "User ${index + 10}";
-    final message = index == 0 ? "Please check the attached invoice for the order." : "Is the MOQ negotiable?";
+    final lastMessage = index == 0 
+        ? "Please check the attached invoice for the order." 
+        : "Is the MOQ negotiable for bulk orders?";
     final time = index == 0 ? "10:30 AM" : "Yesterday";
 
     return ListTile(
@@ -62,13 +65,13 @@ class _ChatListItem extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 26,
-            backgroundColor: AppColors.primary.withOpacity(0.1 * (index + 1)),
+            backgroundColor: AppColors.primary.withOpacity(0.1 * ((index % 5) + 1)),
             child: Text(
-              name[0],
+              seller['name'][0],
               style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppColors.primary),
             ),
           ),
-          if (index < 3) // Online indicator
+          if (index < 3) // Online indicator for top 3
             Positioned(
               right: 0,
               bottom: 0,
@@ -89,7 +92,7 @@ class _ChatListItem extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              name,
+              seller['name'],
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.inter(
@@ -119,7 +122,7 @@ class _ChatListItem extends StatelessWidget {
               ),
             Expanded(
               child: Text(
-                message,
+                lastMessage,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.inter(

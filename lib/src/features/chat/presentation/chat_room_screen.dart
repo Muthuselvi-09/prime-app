@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 import 'package:prime_app/src/core/constants/app_colors.dart';
+import 'package:prime_app/src/core/data/dummy_data.dart';
 
 
 class ChatRoomScreen extends StatefulWidget {
@@ -13,9 +15,40 @@ class ChatRoomScreen extends StatefulWidget {
 
 class _ChatRoomScreenState extends State<ChatRoomScreen> {
   final TextEditingController _textController = TextEditingController();
+  Map<String, dynamic>? data;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final state = GoRouterState.of(context);
+    if (state.extra != null) {
+      if (state.extra is Map<String, dynamic>) {
+        final extraMap = state.extra as Map<String, dynamic>;
+        // Check if it's a seller or a product. 
+        // If product, we need to extract sellerId and get seller.
+        if (extraMap.containsKey('sellerId')) {
+           // It's a product
+           final sellerId = extraMap['sellerId'];
+           data = DummyDataService.getSeller(sellerId);
+        } else if (extraMap.containsKey('name') && extraMap.containsKey('location')) {
+           // Likely a seller object
+           data = extraMap;
+        } else {
+           // Fallback
+           data = DummyDataService.sellers[0];
+        }
+      }
+    } else {
+       data = DummyDataService.sellers[0];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final name = data?['name'] ?? "Seller";
+    // First letter for avatar
+    final initial = name.isNotEmpty ? name[0] : "S";
+
     return Scaffold(
       backgroundColor: const Color(0xFFE2E8F0), // WhatsApp-like background slightly customized
       appBar: AppBar(
@@ -25,24 +58,24 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         elevation: 1,
         title: Row(
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 18,
               backgroundColor: AppColors.primary,
-              child: Icon(Icons.business, size: 18, color: Colors.white),
+              child: Text(initial, style: const TextStyle(color: Colors.white, fontSize: 16)),
             ),
             const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Safety First Corp", style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(name, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold)),
                 Text("Online", style: GoogleFonts.inter(fontSize: 12, color: AppColors.success)),
               ],
             ),
           ],
         ),
         actions: [
-          IconButton(icon:  Icon(Icons.call), onPressed: () {}),
-          IconButton(icon:  Icon(Icons.more_vert), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.call), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
         ],
       ),
       body: Column(
