@@ -14,6 +14,12 @@ class ChatListScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
         title: Text("Messages", style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
         elevation: 0,
         backgroundColor: Colors.white,

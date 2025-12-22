@@ -17,6 +17,13 @@ import 'package:prime_app/src/features/chat/presentation/chat_room_screen.dart';
 import 'package:prime_app/src/routing/not_found_screen.dart';
 import 'package:prime_app/src/features/shared/presentation/notifications_screen.dart';
 import 'package:prime_app/src/features/shared/presentation/profile_screen.dart';
+import 'package:prime_app/src/features/buyer/post_requirement/presentation/post_requirement_screen.dart';
+import 'package:prime_app/src/features/buyer/orders/presentation/orders_screen.dart';
+import 'package:prime_app/src/features/buyer/leads/presentation/leads_screen.dart';
+import 'package:prime_app/src/features/buyer/wishlist/presentation/wishlist_screen.dart';
+import 'package:prime_app/src/features/buyer/payments/presentation/payments_screen.dart';
+import 'package:prime_app/src/features/shared/support/presentation/support_screen.dart';
+import 'package:prime_app/src/features/shared/settings/presentation/settings_screen.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -47,6 +54,34 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/post-requirement',
+        builder: (context, state) => const PostRequirementScreen(),
+      ),
+      GoRoute(
+        path: '/orders',
+        builder: (context, state) => const OrdersScreen(),
+      ),
+      GoRoute(
+        path: '/leads',
+        builder: (context, state) => const LeadsScreen(),
+      ),
+      GoRoute(
+        path: '/wishlist',
+        builder: (context, state) => const WishlistScreen(),
+      ),
+      GoRoute(
+        path: '/payments',
+        builder: (context, state) => const PaymentsScreen(),
+      ),
+      GoRoute(
+        path: '/support',
+        builder: (context, state) => const SupportScreen(),
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
       ),
 
       // Seller Routes

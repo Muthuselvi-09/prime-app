@@ -13,6 +13,12 @@ class CategoryListingScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
         title: Text(
           "All Categories",
           style: GoogleFonts.inter(fontWeight: FontWeight.bold),

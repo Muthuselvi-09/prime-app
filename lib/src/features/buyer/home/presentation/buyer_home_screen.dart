@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 import 'package:prime_app/src/core/constants/app_colors.dart';
 import 'package:prime_app/src/features/seller/dashboard/presentation/seller_dashboard_screen.dart';
 
@@ -505,6 +506,18 @@ class _ProductCard extends StatelessWidget {
 class _PrimeDrawer extends StatelessWidget {
   const _PrimeDrawer();
 
+  void _navigate(BuildContext context, String path) {
+    // 1. Close the drawer first to prevent UI glitches
+    Navigator.pop(context);
+
+    // 2. Add safe delay using Future.microtask after closing drawer
+    Future.microtask(() {
+      if (context.mounted) {
+        context.push(path);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -532,77 +545,65 @@ class _PrimeDrawer extends StatelessWidget {
             ),
           ),
 
-          _drawerTile(context, Icons.home, "Home"),
-          _drawerTile(context, Icons.category, "View All Categories"),
-          _drawerTile(context, Icons.post_add, "Post Your Requirement"),
-          _drawerTile(context, Icons.message, "Messages"),
-          _drawerTile(context, Icons.shopping_bag, "My Orders"),
+          _drawerTile(context, Icons.home, "Home", onTap: () => _navigate(context, '/buyer/home')),
+          _drawerTile(context, Icons.category, "View All Categories", onTap: () => _navigate(context, '/buyer/categories')),
+          _drawerTile(context, Icons.post_add, "Post Your Requirement", onTap: () => _navigate(context, '/post-requirement')),
+          _drawerTile(context, Icons.message, "Messages", onTap: () => _navigate(context, '/buyer/chats')),
+          _drawerTile(context, Icons.shopping_bag, "My Orders", onTap: () => _navigate(context, '/orders')),
 
-          _drawerTile(context, Icons.favorite_border, "Your Favorites"),
-          _drawerTile(context, Icons.local_shipping, "Ship with Prime"),
-          _drawerTile(context, Icons.verified, "Verified Exporters"),
+          _drawerTile(context, Icons.favorite_border, "Your Favorites", onTap: () => _navigate(context, '/wishlist')),
+          _drawerTile(context, Icons.local_shipping, "Ship with Prime", onTap: () => _navigate(context, '/payments')),
+          _drawerTile(context, Icons.verified, "Verified Exporters", onTap: () => _navigate(context, '/leads')),
 
           const Divider(),
 
           // 🔥 SWITCH TO SELLER (IndiaMART style)
-         _drawerTile(
-  context,
-  Icons.switch_account,
-  "Switch to Seller",
-  highlight: true,
-  onTap: () {
-    Navigator.pop(context);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const SellerDashboardScreen(),
-      ),
-    );
-  },
-),
+          _drawerTile(
+            context,
+            Icons.switch_account,
+            "Switch to Seller",
+            highlight: true,
+            onTap: () => _navigate(context, '/seller/dashboard'),
+          ),
 
           const Divider(),
 
-          _drawerTile(context, Icons.feedback, "Feedback"),
-          _drawerTile(context, Icons.help_outline, "Help & Support"),
-          _drawerTile(context, Icons.settings, "Settings"),
+          _drawerTile(context, Icons.feedback, "Feedback", onTap: () => _navigate(context, '/support')),
+          _drawerTile(context, Icons.help_outline, "Help & Support", onTap: () => _navigate(context, '/support')),
+          _drawerTile(context, Icons.settings, "Settings", onTap: () => _navigate(context, '/settings')),
         ],
       ),
     );
   }
 
   // ✅ UPDATED drawerTile (supports custom onTap)
- Widget _drawerTile(
-  BuildContext context,
-  IconData icon,
-  String title, {
-  VoidCallback? onTap,
-  bool highlight = false,
-}) {
-  return Container(
-    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-    decoration: BoxDecoration(
-      color: highlight ? AppColors.accent : Colors.transparent,
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: ListTile(
-      leading: Icon(
-        icon,
-        color: highlight ? Colors.white : null,
+  Widget _drawerTile(
+    BuildContext context,
+    IconData icon,
+    String title, {
+    required VoidCallback onTap,
+    bool highlight = false,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: highlight ? AppColors.accent : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
       ),
-      title: Text(
-        title,
-        style: TextStyle(
+      child: ListTile(
+        leading: Icon(
+          icon,
           color: highlight ? Colors.white : null,
-          fontWeight: highlight ? FontWeight.w600 : FontWeight.normal,
         ),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: highlight ? Colors.white : null,
+            fontWeight: highlight ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
+        onTap: onTap,
       ),
-      onTap: onTap ??
-          () {
-            Navigator.pop(context);
-          },
-    ),
-  );
-}
-
+    );
+  }
 }
